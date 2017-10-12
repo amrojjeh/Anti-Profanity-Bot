@@ -1,5 +1,5 @@
 # ProfanityBot
-A bot that checks for profanity stuff!
+A bot that checks for profanity stuff! (For discord)
 
 
 # How to set it up
