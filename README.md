@@ -9,9 +9,8 @@ The thing is still in work progress so if you see any bugs or ways around this b
 3. Add the bot to your server and it should be workin' good!
 
 ## What am I planning to add later?
-1. A way to remove profanity words. (Right now you can only add them)
-2. Make sure that only admins and moderators can add new profanity words.
-3. Just improve the Anti-Profanity Bot overall.
+1. Make sure that only admins and moderators can add new profanity words.
+2. Just improve the Anti-Profanity Bot overall.
 
 ## Commands
 !addProfanity [Profanity] - Add a new word to the list of profanities
