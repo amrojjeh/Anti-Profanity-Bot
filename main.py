@@ -17,6 +17,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     """When a new message has arrived"""
+    await RemoveProfanity(message)
     await innapropriateMessage(message)
     await AddProfanity(message)
     
@@ -55,4 +56,23 @@ async def AddProfanity(message):
             myfile.write(message.content.lower().replace("!addprofanity ", "") + "\n")
             myfile.close()
             print("File has just been created")
+
+async def RemoveProfanity(message):
+    """ Remove profanities from the list """
+    if (message.content.lower().startswith("!removeprofanity") and str(message.author) != "TEST TEST TEST#5653"): # If true, it will append to a file called ProfanityList.txt
+        ProfanityList = []
+        try:
+            with open("ProfanityList.txt", "r") as myfile:
+                ProfanityList = myfile.read().split("\n")
+        except FileNotFoundError:
+            myfile = open("ProfanityList.txt", "w+")
+            myfile.close()
+            print("File has just been created, could not remove profanity.")
+            return
+        for i in range(len(ProfanityList)):
+            if (ProfanityList[i] == message.content.lower().replace("!removeprofanity ", "")):
+                ProfanityList[i] = ""
+        with open("ProfanityList.txt", "w") as myfile:
+            myfile.write("\n".join(ProfanityList))
+
 client.run("INSERT BOT TOKEN HERE")
