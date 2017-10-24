@@ -1,78 +1,92 @@
-import os
 import discord
-import asyncio
-import random
 
-client = discord.Client()
+CLIENT = discord.Client()
 
-@client.event
+
+@CLIENT.event
 async def on_ready():
     """ Print when the bot is ready """
     print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
-    print(client.user.display_name)
+    print(CLIENT.user.name)
+    print(CLIENT.user.id)
+    print(CLIENT.user.display_name)
     print('------')
 
-@client.event
+
+@CLIENT.event
 async def on_message(message):
-    """When a new message has arrived"""
     await RemoveProfanity(message)
     await innapropriateMessage(message)
     await AddProfanity(message)
-    
+
+
 async def innapropriateMessage(message):
     """ Profainity Filter, it runs when a new message gets sent """
     ProfanityList = []
-    try:
-        with open("ProfanityList.txt", "r") as myfile:
-            ProfanityList = myfile.read().split("\n")
-    except FileNotFoundError:
-        myfile = open("ProfanityList.txt", "w+")
-        myfile.close()
-        print("File has just been created")
-        return
+    with open("ProfanityList.txt", "r") as myfile:
+        ProfanityList = myfile.read().split("\n")
+    newSentence = message.content  # The sentence that is gonna replace the innapropriate message
     for word in range(0, len(ProfanityList)):
-        if((message.content.lower().find(ProfanityList[word].lower())) != -1 and str(message.author) != "TEST TEST TEST#5653" and ProfanityList[word] != ""): # Profanity word comes from ProfanityList.txt
-            await client.delete_message(message)
-            newWord = "" # New Profanity word to match casing
-            for letter in range(len(ProfanityList[word])):
-                messageLetter = message.content.find(ProfanityList[word][letter])
+        if ((message.content.lower().find(ProfanityList[word].lower())) != -1 \
+                    and not message.author.bot and ProfanityList[
+            word] != ""):  # Profanity word comes from ProfanityList.txt
+            newWord = ""  # New Profanity word to match casing
+            for letter in range(0, len(ProfanityList[word])):
+                messageLetter = message.content.find(ProfanityList[word][letter])  # index of bad word and letter
                 if (message.content[messageLetter].isupper()):
                     newWord += ProfanityList[word][letter].upper()
                 else:
                     newWord += ProfanityList[word][letter].lower()
-            await client.send_message(message.channel, "**{}** {}".format(message.author.display_name, message.content.replace(newWord, "|BADWORD|")))
-            break
-                    
+            newSentence = newSentence.replace(newWord, "|BADWORD|")
+
+    if newSentence != message.content and not message.author.bot:
+        await CLIENT.delete_message(message)
+        await CLIENT.send_message(message.channel, "**{}** {}".format(message.author.display_name, newSentence))
+        newSentence = ""
+
+
 async def AddProfanity(message):
     """ Add profanities from the list """
-    if (message.content.lower().startswith("!addprofanity") and str(message.author) != "TEST TEST TEST#5653"): # If true, it will append to a file called ProfanityList.txt
-        try:
+    if message.content.lower().startswith("!addprofanity") and not message.author.bot \
+            and isModerator(message):  # If true, it will append to a file called ProfanityList.txt
+        if isProfanity(message.content.lower().replace("!addprofanity ", "")) != 1:
             with open("ProfanityList.txt", "a") as myfile:
                 myfile.write(message.content.lower().replace("!addprofanity ", "") + "\n")
-        except FileNotFoundError:
-            myfile = open("ProfanityList.txt", "w+")
-            myfile.write(message.content.lower().replace("!addprofanity ", "") + "\n")
-            myfile.close()
-            print("File has just been created")
+        else:
+            CLIENT.send_message(message.channel, "Profanity already exists.")
+
 
 async def RemoveProfanity(message):
     """ Remove profanities from the list """
-    if (message.content.lower().startswith("!removeprofanity") and str(message.author) != "TEST TEST TEST#5653"): # If true, it will append to a file called ProfanityList.txt
+    if message.content.lower().startswith("!removeprofanity") and not message.author.bot \
+            and isModerator(message):  # If true, it will append to a file called ProfanityList.txt
         ProfanityList = []
-        try:
-            with open("ProfanityList.txt", "r") as myfile:
-                ProfanityList = myfile.read().split("\n")
-        except FileNotFoundError:
-            myfile = open("ProfanityList.txt", "w+")
-            myfile.close()
-            print("File has just been created, could not remove profanity.")
-            return
+        with open("ProfanityList.txt", "r") as myfile:
+            ProfanityList = myfile.read().split("\n")
         for i in range(len(ProfanityList)):
-            if (ProfanityList[i] == message.content.lower().replace("!removeprofanity ", "")):
+            if ProfanityList[i] == message.content.lower().replace("!removeprofanity ", ""):
                 ProfanityList[i] = ""
         with open("ProfanityList.txt", "w") as myfile:
-            myfile.write("\n".join(ProfanityList))
+            for i in range(len(ProfanityList)):
+                if ProfanityList[i] != "":
+                    myfile.write(ProfanityList[i] + "\n")
 
-client.run("INSERT BOT TOKEN HERE")
+
+def isModerator(message):
+    for i in range(0, len(message.author.roles)):
+        if str(message.author.roles[i]).lower() == "moderator" or str(message.author.roles[i]).lower() == "admin":
+            return True
+    return False
+
+
+def isProfanity(profanity):
+    ProfanityList = []
+    with open("ProfanityList.txt", "r") as myfile:
+        ProfanityList = myfile.read().split("\n")
+    for i in range(0, len(ProfanityList)):
+        if ProfanityList[i] == profanity:
+            return 1
+    return 0
+
+
+CLIENT.run("ENTER TOKEN HERE")
