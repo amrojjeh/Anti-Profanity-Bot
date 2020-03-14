@@ -1,4 +1,5 @@
 # ProfanityBot
+**THIS BOT NO LONGER WORKS DUE TO CHANGES IN THE API**
 A bot that checks for profanity stuff! (For discord)
 The thing is still in work progress so if you see any bugs or ways around this bot then please report this bug in issues.
 
@@ -14,3 +15,4 @@ The thing is still in work progress so if you see any bugs or ways around this b
 
 ## Commands
 !addProfanity [Profanity] - Add a new word to the list of profanities
+
